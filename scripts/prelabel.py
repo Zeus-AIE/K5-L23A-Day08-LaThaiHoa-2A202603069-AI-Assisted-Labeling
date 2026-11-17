@@ -118,6 +118,12 @@ class YoloeBackend(Backend):
     def __init__(self, *args):
         super().__init__(*args)
         import os
+        import ultralytics.nn.modules.head as _head
+        import ultralytics.nn.modules.block as _block
+        if not hasattr(_head, "YOLOESegment26") and hasattr(_head, "YOLOESegment"):
+            setattr(_head, "YOLOESegment26", getattr(_head, "YOLOESegment"))
+        if not hasattr(_block, "Proto26") and hasattr(_block, "Proto"):
+            setattr(_block, "Proto26", getattr(_block, "Proto"))
         from ultralytics import YOLOE
         self.native_masks = self.a.segmenter == "native"
         name = self.a.weights or f"yoloe-26{self.a.size}-seg.pt"
