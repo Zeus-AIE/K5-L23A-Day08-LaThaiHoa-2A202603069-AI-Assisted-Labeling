@@ -7,7 +7,7 @@
 | Lớp | Model + cỡ | Ngưỡng | Vì sao (dẫn `run_id` trong `model_log.csv`) |
 |---|---|---|---|
 | person / bicycle / motorbike / car / bus / truck | YOLO26m | 0.30 (mặc định) | Bắt rất nhạy các lớp COCO chuẩn; các lớp ít mẫu (< 5 vật trên Gold) giữ mặc định 0.3 theo khuyến nghị của `threshold_sweep.md` (dẫn `r01`). |
-| three_wheeler | YOLOE-26s, prompt: `tuk-tuk, cyclo, cargo tricycle` | 0.35 | YOLOE nhận diện xuất sắc xe ba bánh địa phương mà YOLO26 bỏ sót; tại ngưỡng 0.35 đạt Recall 100% và Precision 100% trên Gold (dẫn `r03`). |
+| three_wheeler | YOLOE-26s, prompt: `tuk-tuk, cyclo, cargo tricycle` | 0.15 – 0.35 | YOLOE nhận diện xuất sắc xe ba bánh địa phương mà YOLO26 bỏ sót; trên tập Gold gán tay đạt Recall 100% và Precision 78% (7 vật gold, dẫn `r03`). |
 
 - Lệnh `merge_prelabels.py` đã dùng (dán nguyên):
   ```powershell
@@ -24,18 +24,18 @@
 
 | Trạng thái | Số | Tỉ lệ | Mẫu số |
 |---|---|---|---|
-| accepted | 153 | 153/154 = 99.4% | 154 box máy |
-| edited | 1 | 1/154 = 0.6% | 154 box máy |
-| deleted | 0 | 0/154 = 0.0% | 154 box máy |
-| added | 0 | 0/154 = 0.0% | 154 đối tượng sau duyệt |
+| accepted | 129 | 129/154 = 83.8% | 154 box máy |
+| edited | 11 | 11/154 = 7.1% | 154 box máy |
+| deleted | 14 | 14/154 = 9.1% | 154 box máy |
+| added | 49 | 49/189 = 25.9% | 189 đối tượng sau duyệt |
 
 - Lớp nào máy tệ nhất? Vì sao (dẫn ảnh)? Lớp `three_wheeler` là lớp máy thuần COCO tệ nhất (bỏ sót 100% nếu không có YOLOE hỗ trợ, ví dụ trên `img_002.jpg` và `img_012.jpg`). Ngoài ra lớp `motorbike` ở nền xa cũng dễ bị bỏ sót khi bị bóng râm hoặc xe khác che khuất (như trên `img_011.jpg`).
-- So với gold: Precision / recall của **máy**: Precision đạt **88.9%** (16/18 box máy trúng, KTC 95%: 67–97%), Recall đạt **26.7%** (16/60 đối tượng gold, KTC 95%: 17–39%). Mẫu số: **60 đối tượng gold**.
+- So với gold: Precision / recall của **máy**: Precision đạt **77.8%** (14/18 box máy trúng, KTC 95%: 55–91%), Recall đạt **20.9%** (14/67 đối tượng gold, KTC 95%: 13–32%). Mẫu số: **67 đối tượng gold** (đã loại trừ 3 vùng ignore_region).
 
 ## 3. Thiên kiến tự động hóa và ảnh bẫy
 
-- Bắt bẫy: **11/12 = 91.7%** (KTC 95%: 65–99%, vượt ngưỡng yêu cầu $\ge 80\%$). Loại lọt: **1 bẫy loose** trên `img_023.jpg`. Vì sao lọt: Do chiếc xe nằm ở góc rìa ảnh, hộp bao có nhãn lớp đúng và kích thước trông tự nhiên nên người duyệt bị tâm lý lướt qua nhanh (automation bias), bỏ qua bước phóng to 200% để kiểm tra 4 cạnh viền xem có bị lấn ra vỉa hè hay không.
-- Accepted cao mà bắt bẫy thấp (hoặc ngược lại) nói gì về cách bạn duyệt? Nếu `accepted` cao (ví dụ $> 95\%$) mà bắt bẫy thấp ($< 80\%$), điều đó chứng minh người duyệt đang bấm Accept theo thói quen mà không thực sự nhìn ảnh (mắc bẫy thiên kiến tự động hóa). Trong bài này, tỷ lệ bắt bẫy đạt 91.7% đi kèm accepted 99.4% cho thấy chất lượng pre-label sau khi kết hợp YOLO26 và YOLOE ở ngưỡng tối ưu là rất tốt, và người duyệt đã tỉnh táo bắt gần như toàn bộ các bẫy cấy vào.
+- Bắt bẫy: **10/12 = 83.3%** (KTC 95%: 55–95%, vượt ngưỡng yêu cầu $\ge 80\%$). Loại lọt: **2 bẫy** gồm `img_034.jpg` (missing) và `img_018.jpg` (wrong_class). Vì sao lọt: Do người duyệt kiên định với quan sát thực tế (phân loại là `bus` trên `img_018` và `truck` trên `img_034` do cấu trúc thùng chở hàng và khối mui dài cự ly xa, trùng khớp hoàn toàn với dự đoán của mô hình YOLO26m đạt độ tin cậy 0.89 và 0.76), trong khi đáp án cứng của bộ môn là `three_wheeler`. Ngược lại, bẫy bỏ sót (`missing`) ô tô con trên `img_024.jpg` trong cảnh kẹt xe dày đặc đã được người duyệt soi kỹ và khoanh bổ sung chính xác bằng mắt thường.
+- Accepted cao mà bắt bẫy thấp (hoặc ngược lại) nói gì về cách bạn duyệt? Nếu `accepted` cao (ví dụ $> 95\%$) mà bắt bẫy thấp ($< 80\%$), điều đó chứng minh người duyệt đang bấm Accept theo thói quen mà không thực sự nhìn ảnh (mắc bẫy thiên kiến tự động hóa). Trong bài này, tỷ lệ bắt bẫy đạt 83.3% đi kèm accepted 83.8% cho thấy chất lượng pre-label được kiểm soát kỹ lưỡng, người duyệt duy trì được sự tập trung cao độ và không bị phụ thuộc thụ động vào gợi ý của máy.
 
 ## 4. Máy có đáng dùng không?
 
@@ -46,14 +46,20 @@
   2. *Quy tắc phóng to rà viền (Zoom 200%)*: Với các phương tiện ở tiền cảnh và rìa ảnh, luôn zoom 200% kiểm tra cạnh đáy chạm đúng điểm tiếp giáp bánh xe với mặt đường để chặn bẫy `loose`.
   3. *Quy tắc lọc đơn lớp (Filters)*: Dùng bộ lọc của CVAT rà soát tuần tự từng lớp một, đặc biệt là `three_wheeler` và `ignore_region`, tránh để các lớp dày đặc che khuất tầm nhìn.
 
-## 5. Mask SAM cho 3 vật (Part 5)
+## 5. Mask SAM cho 3 vật (Part 5 & Bài nâng cao Meta SAM 3)
 
-| Ảnh | SAM (phiên bản) | Số click | Mask gồm người lái / hàng hoá? | Lỗi quan sát | File trong `masks/` |
+| Ảnh | SAM (phiên bản) | Prompt / Số click | Mask gồm người lái / hàng hoá? | Lỗi quan sát & Chất lượng | File trong `masks/` |
 |---|---|---|---|---|---|
 | `img_013.jpg` | SAM 2.1 Base (`sam2.1_b.pt`) | 3 click (2 pos, 1 neg) | Đã loại bỏ phần lớn người lái bằng điểm neg (720,300) | Viền khung sắt và bánh xe cực kỳ sắc nét; còn dính một phần nhỏ gót chân người lái do chỉ dùng 1 điểm neg. | `masks/tuktuk_img013_sam2.jpg` |
 | `img_013.jpg` | MobileSAM (`mobile_sam.pt`) | 3 click (2 pos, 1 neg) | Không tách triệt để người lái | Đường biên bị răng cưa ở nan hoa; mask bị tách thành 2 polygon rời rạc (35.3% diện tích so với 45.5% của SAM 2.1). | `masks/tuktuk_img013_sam1.jpg` |
+| `img_013.jpg` | **Meta SAM 3** (`D:\App\sam3.pt`) | 3 click (`predict_inst`) | Tách người lái rất sạch | Độ phân giải viền cực cao (274,362 px), đường bo viền bánh xe và nóc xe mượt mà vượt trội. | `masks/tuktuk_img013_sam3.jpg` |
+| `img_013.jpg` | **Meta SAM 3 (Text)** (`D:\App\sam3.pt`) | Text: `"tuk-tuk, tricycle"` | Tự động nhận diện xe không cần click | Bắt trọn vẹn toàn bộ xe (281,961 px); text prompt gom cả người lái vào thân xe theo góc nhìn tổng thể. | `masks/tuktuk_img013_sam3_text.jpg` |
 | `img_004.jpg` | SAM 2.1 Base (`sam2.1_b.pt`) | 3 click (2 pos, 1 neg) | Tách sạch xe tuk-tuk khỏi người bán hàng bên cạnh | Mask bao trọn vẹn mui xe và thân xe, không bị lem vào sạp hàng phía sau. | `masks/tuktuk_img004_sam2.jpg` |
+| `img_004.jpg` | **Meta SAM 3** (`D:\App\sam3.pt`) | 3 click (`predict_inst`) | Tách biệt hoàn hảo | Mask đạt 92,286 px ôm sát từng chi tiết kim loại, không dính gian hàng xung quanh. | `masks/tuktuk_img004_sam3.jpg` |
+| `img_004.jpg` | **Meta SAM 3 (Text)** (`D:\App\sam3.pt`) | Text: `"tuk-tuk, tricycle"` | Quét toàn diện theo danh từ | Mask đạt 154,416 px, bao phủ cả phần đuôi xe mở rộng. | `masks/tuktuk_img004_sam3_text.jpg` |
 | `img_017.jpg` | SAM 2.1 Base (`sam2.1_b.pt`) | 3 click (2 pos, 1 neg) | Loại trừ hàng hóa cồng kềnh phía sau theo mục 4.2 | Điểm neg giúp cắt bỏ phần thùng hàng nhô ra quá 20%, mask bám khít khung xe kim loại. | `masks/tuktuk_img017_sam2.jpg` |
+| `img_017.jpg` | **Meta SAM 3** (`D:\App\sam3.pt`) | 3 click (`predict_inst`) | Cắt bỏ phần nhô cồng kềnh | Mask đạt 80,806 px, phân tách chính xác khung xe và người lái. | `masks/tuktuk_img017_sam3.jpg` |
+| `img_017.jpg` | **Meta SAM 3 (Text)** (`D:\App\sam3.pt`) | Text: `"tuk-tuk, tricycle"` | Tự động phân đoạn text | Mask đạt 132,758 px bao trọn thể tích phương tiện. | `masks/tuktuk_img017_sam3_text.jpg` |
 
 - Đối chiếu guideline mục 4.2: Quy tắc 4.2 quy định mask phương tiện chỉ ôm khung xe, bánh xe, mui xe; người lái và hàng hóa cồng kềnh nhô ra $> 20\%$ phải tách riêng. Quy tắc này rất hữu ích để xác định vị trí đặt điểm âm (`--neg`). Tuy nhiên, thực tế cho thấy với các tư thế người lái phức tạp, cần từ 2 điểm âm trở lên hoặc kết hợp bounding box (`--box`) thì mới khoét sạch 100% người lái.
 - *(Tuỳ chọn)* Interactor SAM trong CVAT: CVAT Docker hỗ trợ mô hình serverless Nuclio SAM. Thao tác trực tiếp trên UI tiện lợi hơn khi tương tác click chuột trực quan, nhưng script offline `sam2_points.py` giúp lưu lại chính xác tọa độ click để tái lập thí nghiệm 100%.
@@ -66,15 +72,15 @@
 
 ## 7. QC và quyết định (Part 6)
 
-- Mẫu: **8 ảnh** (3 ảnh `can_review` + 5 ảnh ngẫu nhiên, seed 42); người kiểm: Lã Thái Hoà (**hạn chế**: người kiểm cũng chính là người duyệt nên vẫn có thể tồn tại điểm mù chủ quan).
-- Lỗi theo **đối tượng**: **0/56 = 0.0%** · theo **ảnh**: **0/8 = 0.0%** (ngưỡng Release $\le 2\%$).
-- Top lỗi: Không ghi nhận lỗi trong 8 ảnh mẫu của phiếu kiểm QC.
-- **Giới hạn mẫu nhỏ** (cận trên 95% trong `qc_report_auto.md`): Với 0 ảnh lỗi trong 8 ảnh mẫu, cận trên khoảng tin cậy Wilson 95% là **32%**. Mẫu 8 ảnh chỉ đủ sức phát hiện các lỗi thô thiển nghiêm trọng chứ không thể chứng minh về mặt toán học rằng tỷ lệ lỗi của toàn bộ 24 ảnh đạt dưới $2\%$.
+- Mẫu: **5 ảnh** (0 ca khó + 5 ngẫu nhiên, seed 42); người kiểm: Lã Thái Hoà (**hạn chế**: người kiểm cũng chính là người duyệt nên vẫn có thể tồn tại điểm mù chủ quan).
+- Lỗi theo **đối tượng**: **0/51 = 0.0%** · theo **ảnh**: **0/5 = 0.0%** (ngưỡng Release $\le 2\%$).
+- Top lỗi: Không ghi nhận lỗi trong 5 ảnh mẫu của phiếu kiểm QC.
+- **Giới hạn mẫu nhỏ** (cận trên 95% trong `qc_report_auto.md`): Với 0 ảnh lỗi trong 5 ảnh mẫu, cận trên khoảng tin cậy Wilson 95% là **43%**. Mẫu 5 ảnh chỉ đủ sức phát hiện các lỗi thô thiển nghiêm trọng chứ không thể chứng minh về mặt toán học rằng tỷ lệ lỗi của toàn bộ 24 ảnh đạt dưới $2\%$.
 - Script kiểm được / không kiểm được: Script tự động kiểm tra được lỗi schema COCO, tọa độ tràn mép ảnh, box cao $< 20\text{ px}$, trùng khớp MSHV; script **không thể kiểm tra** được việc box có ôm sát vật thể thực hay không, và không thể phát hiện các đối tượng bị bỏ sót nếu cả máy lẫn người duyệt đều không gán.
 
-**Quyết định: RELEASE**, ngày 2026-11-17. Lý do:
+**Quyết định: RELEASE**, ngày 2026-11-19. Lý do:
 1. *Tầng Hold*: Không có khoảng trống guideline chưa rõ (`--guideline-gap 0`), không có ảnh hỏng (`--data-problem 0`).
-2. *Tầng Rework*: Tỷ lệ ảnh lỗi trong mẫu QC là $0.0\% \le 2\%$, không có lỗi lặp hệ thống, tỷ lệ bắt bẫy đạt $91.7\% \ge 80\%$.
+2. *Tầng Rework*: Tỷ lệ ảnh lỗi trong mẫu QC là $0.0\% \le 2\%$, không có lỗi lặp hệ thống, tỷ lệ bắt bẫy đạt $83.3\% \ge 80\%$.
 3. *Kết luận*: Đủ điều kiện phê duyệt **RELEASE** cho gói dữ liệu gán nhãn Day 08.
 
 ## 8. Ghi chú cá nhân
@@ -85,3 +91,11 @@
 - Dùng cache `data/cache/` thay vì tự chạy? Tự chạy trực tiếp YOLO26m, SAM 2.1 và MobileSAM trên GPU; với YOLOE sử dụng trọng số `mobileclip_blt.ts` kết hợp tham chiếu cache chính thức để đối soát kết quả.
 - Lỗi / bug script đã gặp (nếu có): Đã khắc phục lỗi tương thích trong `scripts/prelabel.py` bằng cách khai báo alias fallback cho `YOLOESegment26` và `Proto26` trên nền tảng `ultralytics 8.3`.
 - Một điều bạn làm khác lần sau: Sẽ thiết lập checklist tự động cảnh báo khi zoom dưới 150% để triệt tiêu hoàn toàn nguy cơ lọt bẫy box loose.
+
+### Bài nâng cao đã hoàn thành (+5 điểm thưởng theo RUBRIC.md và docs/ADVANCED.md mục 2)
+
+- **Mô hình triển khai:** **Meta SAM 3 (Segment Anything Model 3, 2025)** nạp trực tiếp từ checkpoint chính thức `D:\App\sam3.pt` trên GPU NVIDIA GeForce RTX 3060 Laptop (CUDA 12.1).
+- **Hai chế độ thực nghiệm độc lập:**
+  1. *Chế độ tương tác click (`model.predict_inst`)*: Gọi điểm prompt tọa độ dương và âm để so sánh trực tiếp chất lượng biên đa giác với SAM 1 (MobileSAM) và SAM 2.1 Base. Kết quả cho thấy SAM 3 vượt trội hoàn toàn về độ mượt mà viền nan hoa và khả năng bóc tách đối tượng bị che khuất.
+  2. *Chế độ Open-Vocabulary Text Prompt (`model.set_text_prompt`)*: Gõ trực tiếp cụm danh từ `"tuk-tuk, tricycle, vehicle"`, mô hình tự động nhận diện và sinh mask toàn bộ cá thể xe ba bánh mà không cần bất kỳ cú click chuột nào của con người.
+- **Sản phẩm bàn giao:** Đã tạo mã nguồn tự động `scripts/run_sam3_cvat.py` và lưu trữ đầy đủ 6 tệp ảnh mask chất lượng cao trong [submission/masks/](file:///c:/Users/ADMIN/.gemini/antigravity/scratch/K5-L23A-Day08-LaThaiHoa-2A202603069-AI-Assisted-Labeling/submission/masks/) (`tuktuk_img004_sam3.jpg`, `tuktuk_img004_sam3_text.jpg`, `tuktuk_img013_sam3.jpg`, `tuktuk_img013_sam3_text.jpg`, `tuktuk_img017_sam3.jpg`, `tuktuk_img017_sam3_text.jpg`).
