@@ -11,10 +11,10 @@
 
 ## Kết quả tóm tắt (điền cuối bài; số lấy từ `submission/qc/*`, kèm mẫu số)
 
-- Máy: accepted / edited / deleted: 129/154 = 83.8% / 11/154 = 7.1% / 14/154 = 9.1% (mẫu số: 154 box máy); added: 49/189 = 25.9% (mẫu số: 189 đối tượng sau duyệt)
+- Máy: accepted / edited / deleted: 128/154 = 83.1% / 11/154 = 7.1% / 15/154 = 9.7% (mẫu số: 154 box máy); added: 49/188 = 26.1% (mẫu số: 188 đối tượng sau duyệt)
 - So với gold: precision / recall của **máy**: 77.8% (14/18) / 20.9% (14/67) (mẫu số: 67 đối tượng gold)
 - Bắt bẫy: 10/12 = 83.3%
 - Thời gian: gán tay 5.5 phút/ảnh (22 phút / 4 ảnh); duyệt có pre-label 3.0 phút/ảnh (72 phút / 24 ảnh)
-- Lỗi QC: 0.0% theo ảnh (0/5), 0.0% theo đối tượng (0/51)
+- Lỗi QC: 0.0% theo ảnh (0/5), 0.0% theo đối tượng (0/50)
 - **Quyết định:** Release — lý do một dòng: Tỉ lệ lỗi kiểm định 0.0% <= 2%, bắt bẫy đạt 83.3% >= 80%, không có lỗi hệ thống và guideline v1.1 đã chuẩn hóa đầy đủ.
 - Bài nâng cao: Đã hoàn thành mục 2 Meta SAM 3 (checkpoint D:\App\sam3.pt, cả chế độ Click và Text Prompt) với 6 ảnh mask chất lượng cao trong `submission/masks/` (+5 điểm thưởng theo RUBRIC).

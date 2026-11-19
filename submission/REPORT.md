@@ -24,10 +24,10 @@
 
 | Trạng thái | Số | Tỉ lệ | Mẫu số |
 |---|---|---|---|
-| accepted | 129 | 129/154 = 83.8% | 154 box máy |
+| accepted | 128 | 128/154 = 83.1% | 154 box máy |
 | edited | 11 | 11/154 = 7.1% | 154 box máy |
-| deleted | 14 | 14/154 = 9.1% | 154 box máy |
-| added | 49 | 49/189 = 25.9% | 189 đối tượng sau duyệt |
+| deleted | 15 | 15/154 = 9.7% | 154 box máy |
+| added | 49 | 49/188 = 26.1% | 188 đối tượng sau duyệt |
 
 - Lớp nào máy tệ nhất? Vì sao (dẫn ảnh)? Lớp `three_wheeler` là lớp máy thuần COCO tệ nhất (bỏ sót 100% nếu không có YOLOE hỗ trợ, ví dụ trên `img_002.jpg` và `img_012.jpg`). Ngoài ra lớp `motorbike` ở nền xa cũng dễ bị bỏ sót khi bị bóng râm hoặc xe khác che khuất (như trên `img_011.jpg`).
 - So với gold: Precision / recall của **máy**: Precision đạt **77.8%** (14/18 box máy trúng, KTC 95%: 55–91%), Recall đạt **20.9%** (14/67 đối tượng gold, KTC 95%: 13–32%). Mẫu số: **67 đối tượng gold** (đã loại trừ 3 vùng ignore_region).
@@ -73,7 +73,7 @@
 ## 7. QC và quyết định (Part 6)
 
 - Mẫu: **5 ảnh** (0 ca khó + 5 ngẫu nhiên, seed 42); người kiểm: Lã Thái Hoà (**hạn chế**: người kiểm cũng chính là người duyệt nên vẫn có thể tồn tại điểm mù chủ quan).
-- Lỗi theo **đối tượng**: **0/51 = 0.0%** · theo **ảnh**: **0/5 = 0.0%** (ngưỡng Release $\le 2\%$).
+- Lỗi theo **đối tượng**: **0/50 = 0.0%** · theo **ảnh**: **0/5 = 0.0%** (ngưỡng Release $\le 2\%$).
 - Top lỗi: Không ghi nhận lỗi trong 5 ảnh mẫu của phiếu kiểm QC.
 - **Giới hạn mẫu nhỏ** (cận trên 95% trong `qc_report_auto.md`): Với 0 ảnh lỗi trong 5 ảnh mẫu, cận trên khoảng tin cậy Wilson 95% là **43%**. Mẫu 5 ảnh chỉ đủ sức phát hiện các lỗi thô thiển nghiêm trọng chứ không thể chứng minh về mặt toán học rằng tỷ lệ lỗi của toàn bộ 24 ảnh đạt dưới $2\%$.
 - Script kiểm được / không kiểm được: Script tự động kiểm tra được lỗi schema COCO, tọa độ tràn mép ảnh, box cao $< 20\text{ px}$, trùng khớp MSHV; script **không thể kiểm tra** được việc box có ôm sát vật thể thực hay không, và không thể phát hiện các đối tượng bị bỏ sót nếu cả máy lẫn người duyệt đều không gán.

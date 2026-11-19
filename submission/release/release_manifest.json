@@ -1,10 +1,10 @@
 {
  "taxonomy_version": "v1.0",
  "images": 24,
- "objects": 198,
+ "objects": 197,
  "per_class": {
   "person": 117,
-  "three_wheeler": 19,
+  "three_wheeler": 18,
   "bicycle": 3,
   "truck": 2,
   "motorbike": 21,
