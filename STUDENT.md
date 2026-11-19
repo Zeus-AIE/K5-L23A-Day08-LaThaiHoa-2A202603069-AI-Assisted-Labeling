@@ -5,7 +5,7 @@
 - Lớp (L2 / L3 / khác): L23A
 - Tài khoản GitHub: Zeus-AIE
 - Repo bài nộp (URL): https://github.com/Zeus-AIE/K5-L23A-Day08-LaThaiHoa-2A202603069-AI-Assisted-Labeling.git
-- Commit chốt bài (hash): b6f7eb4
+- Commit chốt bài (hash): f122dd5
 - Máy: Windows 11 x64, GPU NVIDIA GeForce RTX 3060 Laptop GPU (CUDA 12.1)
 - CVAT (Docker): Local Docker v2.81.0 (cổng 8080)
 
